@@ -1,0 +1,33 @@
+[package]
+name = "zk9500cap"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Drop-in libsilkidcap.so for ZKFinger SDK 5.3 Linux that drives the ZKTeco ZK9500 (1b55:0124)"
+publish = false
+
+[lib]
+# Tên lib = "silkidcap" -> cargo xuất ra libsilkidcap.so, đúng tên DT_NEEDED của libzkfp.so.
+name = "silkidcap"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "zkprobe"
+path = "src/bin/zkprobe.rs"
+
+[features]
+default = []
+# Link tĩnh libusb build từ source. KHÔNG dùng cho bản phát hành: build trên glibc >= 2.38
+# thì libusb kéo theo __isoc23_strtol/sscanf (GLIBC_2.38) -> không nạp được trên Ubuntu 22.04.
+vendored-libusb = ["rusb/vendored"]
+
+[dependencies]
+# Mặc định dùng libusb-1.0.so.0 của hệ thống (Bridge tự cài gói libusb-1.0-0; tiến trình vốn
+# đã nạp nó qua libusb-0.1.so.4 của SDK).
+rusb = "0.9"
+
+[profile.release]
+opt-level = 2
+lto = true
+codegen-units = 1
+strip = true
